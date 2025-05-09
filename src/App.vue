@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import {Ref, ref} from "vue";
-import {open} from "@tauri-apps/plugin-dialog";
+import {message, open} from "@tauri-apps/plugin-dialog";
 import OperationZone from "./components/OperationZone.vue";
+import {invoke} from "@tauri-apps/api/core";
+import {listen} from "@tauri-apps/api/event";
 
 const currentDir: Ref<string | null> = ref(null);
 const recursiveRadio: Ref<string> = ref("unrecursive");
@@ -12,13 +14,19 @@ const progressPercentage: Ref<number> = ref(0);
 const progressStatus: Ref<string> = ref("");
 
 async function openDir() {
-  currentDir.value = await open(
+  const path = await open(
       {
         directory: true,
         multiple: false,
         title: "选择目录",
       }
   )
+  currentDir.value = path;
+  try {
+    await invoke("set_source_folder", {sourcePath: path, recursive: recursiveRadio.value});
+  } catch (e) {
+    await message('选择目录失败，原因：' + e);
+  }
 }
 
 
@@ -34,6 +42,19 @@ function getFileNames() {
     return item.length > 0;
   });
 }
+
+listen<number>("update-progress", (event) => {
+  updateProgress(event.payload);  // 忽略这个报错，这么写没问题
+});
+
+function updateProgress(percentage: number) {
+  progressPercentage.value = percentage;
+  if (percentage === 100) {
+    progressStatus.value = "success";
+  } else {
+    progressStatus.value = "";
+  }
+}
 </script>
 
 <template>
@@ -46,6 +67,7 @@ function getFileNames() {
         <el-radio value="unrecursive">不递归</el-radio>
         <el-radio value="recursive">递归</el-radio>
       </el-radio-group>
+      <!--      TODO：加一个筛选文件后缀的功能-->
     </div>
 
     <!-- 主体内容区域 -->
@@ -62,7 +84,7 @@ function getFileNames() {
       </div>
 
       <!-- 右侧操作区域 -->
-      <OperationZone class="operation-zone"/>
+      <OperationZone class="operation-zone" :fileNameList="fileNameList"/>
     </div>
 
     <div class="progress-info">
@@ -116,6 +138,7 @@ function getFileNames() {
 
 /* 左侧输入区域 */
 .input-wrapper {
+flex: 1;
   position: relative;
   min-height: 0;
 }
@@ -143,6 +166,7 @@ function getFileNames() {
 }
 
 .operation-zone {
+  flex:2;
   margin-right: 0px;
 }
 

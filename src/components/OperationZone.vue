@@ -1,36 +1,70 @@
 <script lang="ts" setup>
 import {ref, Ref} from "vue";
-import {open} from "@tauri-apps/plugin-dialog";
+import {message, open} from "@tauri-apps/plugin-dialog";
+import {invoke} from "@tauri-apps/api/core";
 
+const props=defineProps(['fileNameList'])
 const method: Ref<string> = ref("same");
 const operation: Ref<string> = ref("copy");
 const targetDir: Ref<string | null> = ref(null);
 const canExecute: Ref<boolean> = ref(false);
 const fileListData: Ref<any[]> = ref([
+  // TODO: change mock data
   {name: 'file1.txt', path: '/documents', size: '1.2MB'},
   {name: 'image.png', path: '/pictures', size: '3.4MB'},
   {name: 'report.pdf', path: '/documents', size: '2.1MB'},
 ]);
 
 async function setTargetDir() {
-  const dir = await open(
-      {
-        directory: true,
-        multiple: false,
-        title: "选择目录",
-      }
-  )
-  if (dir) {
-    targetDir.value = dir;
+  const path = await open({
+    directory: true,
+    multiple: false,
+    title: "选择目录",
+  });
+
+  targetDir.value = path;
+
+  try {
+    await invoke("set_target_folder", {targetPath: path});
+  } catch (e) {
+    await message('选择目录失败，原因：' + e);
   }
 }
 
-function search() {
+async function openTargetDir() {
+  try {
+    const result = await invoke('open_target_folder');
+    console.log(result);
+  } catch (err) {
+    await message('打开目录失败，原因：' + err);
+  }
 
 }
 
-function execute() {
+async function search() {
+  try {
+    const result = await invoke("search", {
+      method: method.value,
+      keywords: props.fileNameList,
+    });
+    // enable execute button
+    canExecute.value = true;
+    console.log(result);
+  }catch (err){
+    await message('搜索失败，原因：' + err);
+  }
+}
 
+async function execute() {
+  try {
+    const result = await invoke("execute", {
+      method:operation.value,
+    });
+
+    console.log(result);
+  }catch (err){
+    await message('执行失败，原因：' + err);
+  }
 }
 </script>
 
@@ -38,8 +72,12 @@ function execute() {
   <div class="column gap-medium operations">
     <div class="column gap-small operation-panel">
       <div class="row gap-small align-center">
-        <el-text>存放目录：{{ targetDir || "无，请选择" }}</el-text>
-        <el-button @click="setTargetDir">打开</el-button>
+        <el-text
+            style="max-width: 200px"
+        >存放目录：{{ targetDir || "无，请选择" }}
+        </el-text>
+        <el-button @click="setTargetDir">选择</el-button>
+        <el-button @click="openTargetDir">打开</el-button>
       </div>
 
       <!-- 操作区域 -->

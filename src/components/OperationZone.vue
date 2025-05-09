@@ -3,17 +3,12 @@ import {ref, Ref} from "vue";
 import {message, open} from "@tauri-apps/plugin-dialog";
 import {invoke} from "@tauri-apps/api/core";
 
-const props=defineProps(['fileNameList'])
+const props = defineProps(['fileNameList'])
 const method: Ref<string> = ref("same");
 const operation: Ref<string> = ref("copy");
 const targetDir: Ref<string | null> = ref(null);
 const canExecute: Ref<boolean> = ref(false);
-const fileListData: Ref<any[]> = ref([
-  // TODO: change mock data
-  {name: 'file1.txt', path: '/documents', size: '1.2MB'},
-  {name: 'image.png', path: '/pictures', size: '3.4MB'},
-  {name: 'report.pdf', path: '/documents', size: '2.1MB'},
-]);
+const fileListData: Ref<{ file_path: string, file_name: string, keyword: string }[]> = ref([]);
 
 async function setTargetDir() {
   const path = await open({
@@ -47,10 +42,10 @@ async function search() {
       method: method.value,
       keywords: props.fileNameList,
     });
-    // enable execute button
-    canExecute.value = true;
+    fileListData.value = result as { file_path: string, file_name: string, keyword: string }[];
+    canExecute.value = fileListData.value.length > 0;
     console.log(result);
-  }catch (err){
+  } catch (err) {
     await message('搜索失败，原因：' + err);
   }
 }
@@ -58,11 +53,11 @@ async function search() {
 async function execute() {
   try {
     const result = await invoke("execute", {
-      method:operation.value,
+      method: operation.value,
     });
 
     console.log(result);
-  }catch (err){
+  } catch (err) {
     await message('执行失败，原因：' + err);
   }
 }
@@ -117,11 +112,10 @@ async function execute() {
             height="100%"
             style="width: 100%"
         >
-          <el-table-column label="No." prop="index" resizable width="50px"/>
-          <el-table-column label="文件名" prop="name"/>
+          <el-table-column label="序号" type="index" width="60"/>
+          <el-table-column label="文件名" prop="file_name"/>
           <el-table-column label="匹配词" prop="keyword"/>
-          <el-table-column label="状态" prop="status"/>
-
+          <el-table-column label="文件路径" prop="file_path" show-overflow-tooltip/>
         </el-table>
       </el-scrollbar>
     </div>

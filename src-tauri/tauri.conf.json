@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "pianer",
-        "width": 600,
-        "height": 800
+        "width":1268,
+        "height": 768
       }
     ],
     "security": {

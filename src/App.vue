@@ -80,7 +80,7 @@ function updateProgress(percentage: number) {
             placeholder="请输入内容"
             @input="getFileNames">
         </textarea>
-        <el-text class="file-count">目前文件数：{{ fileNameList.length }}</el-text>
+        <el-text class="file-count">目前关键词条数：{{ fileNameList.length }}</el-text>
       </div>
 
       <!-- 右侧操作区域 -->
@@ -138,7 +138,7 @@ function updateProgress(percentage: number) {
 
 /* 左侧输入区域 */
 .input-wrapper {
-flex: 1;
+  flex: 1;
   position: relative;
   min-height: 0;
 }
@@ -166,7 +166,7 @@ flex: 1;
 }
 
 .operation-zone {
-  flex:2;
+  flex: 2;
   margin-right: 0px;
 }
 

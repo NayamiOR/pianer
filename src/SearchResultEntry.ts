@@ -1,0 +1,1 @@
+type SearchResultEntry = { "file_path": String, "file_name": String, "keyword": String }

@@ -6,6 +6,7 @@ use tauri::async_runtime::Mutex;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 mod files;
+mod utils;
 
 struct AppData {
     target_dir_path: Option<String>,
@@ -218,15 +219,9 @@ async fn execute(
     method: String,
 ) -> Result<(), String> {
     let state = state.lock().await;
-    let target_dir_path = match  state.target_dir_path.clone() {
+    let target_dir_path = match state.target_dir_path.clone() {
         Some(path) => path,
         None => {
-            app.dialog()
-                .message("没有设置目标文件夹")
-                .kind(MessageDialogKind::Error)
-                .title("错误")
-                .buttons(MessageDialogButtons::OkCustom("确定".to_string()))
-                .blocking_show();
             return Err("没有设置目标文件夹".to_string());
         }
     };
@@ -234,16 +229,10 @@ async fn execute(
     let total_files = chosen_files.len() as f32;
     let counter = Arc::new(std::sync::Mutex::new(0));
 
-    // 提前克隆 app 避免闭包移动问题
-    let app_clone = app.clone();
-
     chosen_files.iter().try_for_each(|x| {
         let file_path = std::path::PathBuf::from(&x.file_path);
         let file_name = x.file_name.clone();
         let target_path = std::path::Path::new(&target_dir_path).join(&file_name);
-
-        // 更新初始进度
-        update_progress(app_clone.clone(), 0.0);
 
         match method.as_str() {
             "copy" => {
@@ -271,7 +260,7 @@ async fn execute(
         // 更新进度
         let mut counter = counter.lock().unwrap();
         *counter += 1;
-        update_progress(app_clone.clone(), *counter as f32 / total_files);
+        update_progress(app.clone(), *counter as f32 / total_files);
 
         Ok::<(), String>(())
     })?;

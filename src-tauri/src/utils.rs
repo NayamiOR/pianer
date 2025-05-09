@@ -6,14 +6,13 @@ fn print_schema() {
         file_name: "example.txt".to_string(),
         file_path: "/path/to/example.txt".to_string(),
     })
-    .unwrap();
+        .unwrap();
     println!("{}", schema); // 输出: {"percentage":0.5}
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::SearchResultEntry;
 
     #[test]
     fn test_print_schema() {

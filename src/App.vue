@@ -84,7 +84,7 @@ function updateProgress(percentage: number) {
       </div>
 
       <!-- 右侧操作区域 -->
-      <OperationZone class="operation-zone" :fileNameList="fileNameList"/>
+      <OperationZone :fileNameList="fileNameList" class="operation-zone"/>
     </div>
 
     <div class="progress-info">

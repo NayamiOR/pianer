@@ -1,3 +1,68 @@
 .el-textarea__inner {
     height: 100%;
 }
+
+:root {
+    --app-background-color: #f5f7fa;
+    --card-background-color: #ffffff;
+    --card-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    --card-border-radius: 8px;
+    --panel-padding: 16px;
+}
+
+html.dark {
+    --app-background-color: #222222;
+    --card-background-color: #333333;
+    --card-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+    --el-text-color-primary: #e0e0e0;
+    --el-text-color-regular: #d0d0d0;
+    --el-text-color-secondary: #a0a0a0;
+    --el-border-color: #444444;
+    --el-border-color-lighter: #555555;
+    --el-fill-color-blank: #333333;
+    --el-bg-color: #444444;
+    --el-disabled-bg-color: #333333;
+    --el-disabled-text-color: #777777;
+    --el-fill-color-light: #444444;
+    --el-border-color-dark: #666666;
+}
+
+/* 卡片样式 */
+.app-card {
+    background-color: var(--card-background-color);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    padding: var(--panel-padding);
+}
+
+/* 应用整体背景 */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--app-background-color);
+    transition: background-color 0.3s ease;
+}
+
+/* 暗黑模式下的按钮样式覆盖 */
+html.dark .el-button {
+    --el-button-bg-color: #444444;
+    --el-button-border-color: #555555;
+    --el-button-hover-bg-color: #555555;
+    --el-button-hover-border-color: #666666;
+    --el-button-active-bg-color: #333333;
+    color: #e0e0e0;
+}
+
+html.dark .el-button--primary {
+    --el-button-bg-color: var(--el-color-primary);
+    --el-button-border-color: var(--el-color-primary);
+    --el-button-hover-bg-color: var(--el-color-primary-light-3);
+    --el-button-hover-border-color: var(--el-color-primary-light-3);
+}
+
+html.dark .el-button--success {
+    --el-button-bg-color: var(--el-color-success);
+    --el-button-border-color: var(--el-color-success);
+    --el-button-hover-bg-color: var(--el-color-success-light-3);
+    --el-button-hover-border-color: var(--el-color-success-light-3);
+}
